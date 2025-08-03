@@ -1,4 +1,16 @@
 require('dotenv').config();
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("✅ Bot is alive!");
+});
+
+app.listen(port, () => {
+  console.log(`🌐 Web server running on port ${port}`);
+});
+
 const { Client, GatewayIntentBits, Partials, PermissionsBitField } = require('discord.js');
 
 const MOD_LOG_CHANNEL_ID = '1401360940045308015'; // Replace with your mod log channel ID
