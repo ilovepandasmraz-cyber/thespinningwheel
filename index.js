@@ -2,7 +2,7 @@ require('dotenv').config();
 const { Client, GatewayIntentBits, Partials, PermissionsBitField } = require('discord.js');
 
 const MOD_LOG_CHANNEL_ID = '1401360940045308015'; // Replace with your mod log channel ID
-const BYPASS_USER_IDS = ['1363611626045046994']; // Replace with real user IDs
+const BYPASS_USER_IDS = ['333333333']; // Replace with real user IDs
 
 const client = new Client({
   intents: [
