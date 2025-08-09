@@ -14,45 +14,14 @@ app.listen(port, () => {
 const { Client, GatewayIntentBits, Partials, PermissionsBitField } = require('discord.js');
 
 const MOD_LOG_CHANNEL_ID = '1401360940045308015'; // Replace with your mod log channel ID
-const BYPASS_USER_IDS = ['333333333']; // Replace with real user IDs
-
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-  ],
-  partials: [Partials.Channel],
-});
-
-const blockedPatterns = [
-  /discord\.gg\/\w+/i,
-  /discord\.com\/invite\/\w+/i,
-  /onlyfans\.com/i,
-  /pornhub\.com/i,
-  /xvideos\.com/i,
-  /redtube\.com/i,
-  /xnxx\.com/i,
-  /sex\w*\.\w+/i,
-  /nsfw/i,
-];
-
-// In-memory map to track infractions { userId: { count: number, timer: NodeJS.Timeout } }
-const infractions = new Map();
-
-const INFRACTION_LIMIT = 3;
-const INFRACTION_RESET_TIME = 10 * 60 * 1000; // 10 minutes
-const TIMEOUT_DURATION = 5 * 60 * 1000; // 5 minutes
-
-client.once('ready', () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
-});
+const BYPASS_ROLE_IDS = ['123456789012345678', '987654321098765432']; // Replace with your role IDs
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.guild) return;
 
-  // ✅ Skip moderation if the user is in the whitelist
-  if (BYPASS_USER_IDS.includes(message.author.id)) return;
+  // ✅ Skip moderation if the user has any of the bypass roles
+  const member = await message.guild.members.fetch(message.author.id);
+  if (member.roles.cache.some(role => BYPASS_ROLE_IDS.includes(role.id))) return;
 
   const content = message.content.toLowerCase();
   const matched = blockedPatterns.find((pattern) => pattern.test(content));
@@ -81,8 +50,6 @@ client.on('messageCreate', async (message) => {
         infractions.delete(userId);
       }, INFRACTION_RESET_TIME);
     }
-
-    const member = await message.guild.members.fetch(userId);
 
     // Timeout if over limit
     if (userInfractions.count >= INFRACTION_LIMIT) {
@@ -134,5 +101,6 @@ client.on('messageCreate', async (message) => {
     console.error(`❌ Could not delete or timeout: ${err.message}`);
   }
 });
+
 
 client.login(process.env.TOKEN);
