@@ -14,7 +14,7 @@ app.listen(port, () => {
 const { Client, GatewayIntentBits, Partials, PermissionsBitField } = require('discord.js');
 
 const MOD_LOG_CHANNEL_ID = '1401360940045308015'; // Replace with your mod log channel ID
-const BYPASS_ROLE_IDS = ['123456789012345678', '987654321098765432']; // Replace with your role IDs
+const BYPASS_ROLE_IDS = ['1402069146287472710', '1386674622275125421', '1403575752011808798']; // Replace with your role IDs
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.guild) return;
