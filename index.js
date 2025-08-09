@@ -11,17 +11,49 @@ app.listen(port, () => {
   console.log(`🌐 Web server running on port ${port}`);
 });
 
-const { Client, GatewayIntentBits, Partials, PermissionsBitField } = require('discord.js');
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
 
-const MOD_LOG_CHANNEL_ID = '1401360940045308015'; // Replace with your mod log channel ID
-const BYPASS_ROLE_IDS = ['1402069146287472710', '1386674622275125421', '1403575752011808798']; // Replace with your role IDs
+const MOD_LOG_CHANNEL_ID = '1401360940045308015'; // Mod log channel ID
+const BYPASS_ROLE_ID = '1403575752011808798'; // 🔹 Replace with the role ID you want to whitelist
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [Partials.Channel],
+});
+
+const blockedPatterns = [
+  /discord\.gg\/\w+/i,
+  /discord\.com\/invite\/\w+/i,
+  /onlyfans\.com/i,
+  /pornhub\.com/i,
+  /xvideos\.com/i,
+  /redtube\.com/i,
+  /xnxx\.com/i,
+  /sex\w*\.\w+/i,
+  /nsfw/i,
+];
+
+// Infractions memory store
+const infractions = new Map();
+
+const INFRACTION_LIMIT = 3;
+const INFRACTION_RESET_TIME = 10 * 60 * 1000; // 10 minutes
+const TIMEOUT_DURATION = 5 * 60 * 1000; // 5 minutes
+
+client.once('ready', () => {
+  console.log(`✅ Logged in as ${client.user.tag}`);
+});
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.guild) return;
 
-  // ✅ Skip moderation if the user has any of the bypass roles
+  // ✅ Skip moderation if user has the bypass role
   const member = await message.guild.members.fetch(message.author.id);
-  if (member.roles.cache.some(role => BYPASS_ROLE_IDS.includes(role.id))) return;
+  if (member.roles.cache.has(BYPASS_ROLE_ID)) return;
 
   const content = message.content.toLowerCase();
   const matched = blockedPatterns.find((pattern) => pattern.test(content));
@@ -101,6 +133,5 @@ client.on('messageCreate', async (message) => {
     console.error(`❌ Could not delete or timeout: ${err.message}`);
   }
 });
-
 
 client.login(process.env.TOKEN);
